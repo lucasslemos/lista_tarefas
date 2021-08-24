@@ -12,8 +12,6 @@ void main() {
 }
 
 class Home extends StatefulWidget {
-  const Home({key}) : super(key: key);
-
   @override
   _HomeState createState() => _HomeState();
 }
@@ -24,6 +22,17 @@ class _HomeState extends State<Home> {
 
   List _toDoList = [];
 
+  @override
+  void initState() {
+    super.initState();
+
+    _readData().then((data) {
+      setState(() {
+        _toDoList = json.decode(data);
+      });
+    });
+  }
+
   void _addToDo() {
     setState(() {
       Map<String, dynamic> newToDo = Map();
@@ -31,6 +40,7 @@ class _HomeState extends State<Home> {
       _toDoController.text = "";
       newToDo["ok"] = false;
       _toDoList.add(newToDo);
+      _saveData();
     });
   }
 
@@ -43,11 +53,11 @@ class _HomeState extends State<Home> {
         centerTitle: true,
       ),
       body: Column(
-        children: [
+        children: <Widget>[
           Container(
             padding: EdgeInsets.fromLTRB(17.0, 1.0, 7.0, 1.0),
               child: Row(
-                children: [
+                children: <Widget>[
                   Expanded(
                       child: TextField(
                         controller: _toDoController,
@@ -90,11 +100,15 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
+  @override
+
   Future<File> _getFile() async{
     final directory = await getApplicationDocumentsDirectory();
     return File("${directory.path}/data.json");
   }
   Future<File> _saveData() async{
+
     String data = json.encode(_toDoList);
 
     final file = await _getFile();
